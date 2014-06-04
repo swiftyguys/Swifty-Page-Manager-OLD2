@@ -29,12 +29,18 @@ module.exports = function( grunt ) {
         },
         clean: {
             dist: [ "<%= grunt.getDestPath() %>", "<%= grunt.getDestZip() %>" ],
-            probe: [ '<%= grunt.getDestPathSPM() %>js/probe' ]
+            probe: [ '<%= grunt.getDestPathSPM() %>js/probe' ],
+            svn: [ 'svn' ]
         },
         copy: {
             dist: {
                 files: [
                     { expand: true, cwd: '<%= grunt.getSourcePath() %>', src: [ '**' ], dest: '<%= grunt.getDestPathSPM() %>' }
+                ]
+            },
+            svn: {
+                files: [
+                    { expand: true, cwd: '<%= grunt.getDestPathSPM() %>', src: [ '**' ], dest: 'svn/swifty-page-manager/trunk/' }
                 ]
             }
         },
@@ -109,6 +115,61 @@ module.exports = function( grunt ) {
                         cb();
                     }
                 }
+            },
+            svn_co: {
+                command: 'svn co http://plugins.svn.wordpress.org/swifty-page-manager/ svn/swifty-page-manager',
+                options: {
+                    execOptions: {
+                        cwd: '../build/'
+                    },
+                    'callback': function(err, stdout, stderr, cb) {
+                        cb();
+                    }
+                }
+            },
+            svn_stat: {
+                command: 'svn stat',
+                options: {
+                    execOptions: {
+                        cwd: 'svn/swifty-page-manager/'
+                    },
+                    'callback': function(err, stdout, stderr, cb) {
+                        cb();
+                    }
+                }
+            },
+            svn_ci: {
+                command: 'svn ci -m "v1.0.1" --username "SwiftyLife" --force-interactive',
+                options: {
+                    execOptions: {
+                        cwd: 'svn/swifty-page-manager/'
+                    },
+                    'callback': function(err, stdout, stderr, cb) {
+                        cb();
+                    }
+                }
+            },
+            svn_cp_trunk: {
+                command: 'svn cp trunk tags/1.0.1',
+                options: {
+                    execOptions: {
+                        cwd: 'svn/swifty-page-manager/'
+                    },
+                    'callback': function(err, stdout, stderr, cb) {
+                        cb();
+                    }
+                }
+            },
+            svn_ci_trunk: {
+                command: 'svn ci -m "Tagging version 1.0.1" --username "SwiftyLife" --force-interactive',
+                options: {
+                    execOptions: {
+                        cwd: 'svn/swifty-page-manager/'
+                    },
+                    'callback': function(err, stdout, stderr, cb) {
+                        cb();
+                    }
+                }
             }
         }
     } );
@@ -158,6 +219,14 @@ module.exports = function( grunt ) {
     grunt.registerTask( 'default', [
         'build_and_test',
         'build_dist'
+    ] );
+
+    grunt.registerTask( 'svn_update', [
+        'build_dist',
+        'clean:svn',
+        'shell:svn_co',
+        'copy:svn',
+        'shell:svn_stat'
     ] );
 
 };
