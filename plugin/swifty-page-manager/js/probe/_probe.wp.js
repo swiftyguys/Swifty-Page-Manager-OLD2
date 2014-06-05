@@ -135,22 +135,36 @@
         },
 
         Step2: function( input ) {
-            for ( var i = 1; i <= input.x_pages; i++ ) {
-                // Click on the 'Trash' link
+            $( 'a.add-new-h2' ).WaitForVisible( 'Step3', 5000, 0 );
+        },
+
+        Step3: function( input ) {
+            if ( input.wait_data <= input.x_pages ) {
+                // Click on the 'Create new' link
                 $( 'a.add-new-h2' )
                     .MustExist()
                     .Click();
 
-                $( 'input[name="post_title"]' ).val( 'WP Page ' . i );
-
-                $( '#save-post' ).WaitForVisible( 'Step3' );
+                $( 'input[name="save"]' ).WaitForVisible( 'Step4' );
             }
         },
 
-        Step3: function( /*input*/ ) {
-            $( '#save-post' )
-                .MustExist()
-                .Click();
+        Step4: function( input ) {
+            var currentNr = 1;
+
+            if ( typeof input.wait_data !== "undefined" ) {
+                probe.TmpLog( "currentNr " + currentNr );
+                currentNr = input.wait_data;
+
+                $( 'input[name="post_title"]' ).val( 'WP Page ' + currentNr );
+                $( 'input[name="save"]' ).MustExist().Click();
+            }
+
+            if ( currentNr <= input.x_pages ) {
+                currentNr++;
+
+                $( 'a.add-new-h2' ).WaitForVisible( 'Step3', 5000, currentNr );
+            }
         }
     };
 
